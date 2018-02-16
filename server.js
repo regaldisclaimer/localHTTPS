@@ -8,6 +8,10 @@ var server = https.createServer ({
 }, function(req, res) {
 	var filePath = '.' + req.url;
 
+	if (filePath == './') {
+		filePath = './index.html';
+	}
+
 	var extension = path.extname(filePath);
 	var contentType = '';
 
@@ -19,12 +23,37 @@ var server = https.createServer ({
 			contentType = 'text/css';
 			break;
 		case '.json':
-			contentType = 
+			contentType = 'applicaiton/json';
+			break;
+		case '.png':
+			contentType = 'image/png';
+			break;
+		case '.jpg':
+			contentType = 'image/jpg';
+			break;
+		case '.ico':
+			contentType = 'image/x-icon';
+			break;
+		case '.pdf':
+			contentType = 'application/pdf'
+			break;
 	}
+
+	fs.readFile(filePath, function (error, content) {
+		if (error) {
+			if (error.code == 'ENOENT') {
+				res.writeHead(404);
+				res.end('404 Error: ' + error.code + ' ..\n');
+				res.end();
+			}
+		} else {
+			res.writeHead(200, {
+				'Content-Type': contentType
+			});
+			res.end(content, 'utf-8');
+		}
+	});
 });
 
 server.listen(8888);
 console.log("Serving local contents at https://localhost:8888");
-
-////////////////////////////
-
